@@ -37,7 +37,15 @@ app.get("/banners", (req, res) => {
 app.get("/products", (req, res) => {
   models.Product.findAll({
     order: [["createdAt", "DESC"]],
-    attributes: ["id", "name", "price", "createdAt", "seller", "imageUrl"],
+    attributes: [
+      "id",
+      "name",
+      "price",
+      "createdAt",
+      "seller",
+      "imageUrl",
+      "soldout",
+    ],
   })
     .then((result) => {
       console.log("PRODUCTS : ", result);
@@ -48,6 +56,63 @@ app.get("/products", (req, res) => {
     .catch((error) => {
       console.error(error);
       res.status(400).send("에러 발생");
+    });
+});
+
+
+app.post("/login", (req, res) => {
+  const body = req.body;
+  const { login_id, login_password } = body;
+  models.Register.findAll({
+    attributes: ["user", "password"],
+  }).then((result) => {
+    let isLogin = false;
+    for (let i = 0; i < result.length; i++) {
+      if (
+        result[i].dataValues.user === login_id &&
+        result[i].dataValues.password === login_password
+      ) {
+        isLogin = true;
+        break;
+      }
+    }
+    if (isLogin) {
+      res.send({
+        success: true,
+      });
+    } else {
+      res.send({
+        success: false,
+      });
+    }
+  });
+});
+
+app.post("/register", (req, res) => {
+  const body = req.body;
+  const { user, password, name, year, month, day, gender, phonenumber } = body;
+  if (!user || !password || !name || !year || !month || !day || !gender || !phonenumber) {
+    res.status(400).send("모든 필드를 입력해주세요.");
+  }
+  models.Register.create({
+    user,
+    password,
+    name,
+    year,
+    month,
+    day,
+    gender,
+    phonenumber,
+  })
+    .then((result) => {
+      console.log("유저 생성 결과 :", result);
+      res.send({
+        result,
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(400).send("회원 가입에 문제가 발생했습니다.");
     });
 });
 
@@ -96,6 +161,29 @@ app.post("/image", upload.single("image"), (req, res) => {
   res.send({
     imageUrl: file.path,
   });
+});
+
+app.post("/purchase/:id", (req, res) => {
+  const { id } = req.params;
+  models.Product.update(
+    {
+      soldout: 1,
+    },
+    {
+      where: {
+        id,
+      },
+    }
+  )
+    .then((result) => {
+      res.send({
+        result: true,
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("에러가 발생했습니다.");
+    });
 });
 
 app.listen(port, () => {
