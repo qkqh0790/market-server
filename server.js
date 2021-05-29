@@ -90,14 +90,15 @@ app.post("/login", (req, res) => {
 
 app.post("/register", (req, res) => {
   const body = req.body;
-  const { user, password, name, year, month, day, gender, phonenumber } = body;
-  if (!user || !password || !name || !year || !month || !day || !gender || !phonenumber) {
+  const { user, password, name, nickname, year, month, day, gender, phonenumber } = body;
+  if (!user || !password || !name ||!nickname || !year || !month || !day || !gender || !phonenumber) {
     res.status(400).send("모든 필드를 입력해주세요.");
   }
   models.Register.create({
     user,
     password,
     name,
+    nickname,
     year,
     month,
     day,

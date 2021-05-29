@@ -12,6 +12,10 @@ module.exports = function (sequelize, dataTypes) {
       type: dataTypes.STRING(10),
       allowNull: false,
     },
+    nickname: {
+      type: dataTypes.STRING(10),
+      allowNull: false,
+    },
     year: {
       type: dataTypes.STRING(4),
       allowNull: false,
